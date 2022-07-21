@@ -1,0 +1,61 @@
+import { Food } from '@/interfaces/foods.interface';
+import { ListFont } from '@/interfaces/list-fonts.interface';
+import ChatService from '@/services/chat.service';
+import ConfigService from '@/services/configs.service';
+import DataService from '@/services/datas.service';
+import FontService from '@/services/fonts.service';
+import GoogleService from '@/services/crawler.service';
+import ListFontService from '@/services/list-font.service';
+import MessengerService from '@/services/messenger.service';
+import SheetService from '@/services/sheet.service';
+import { NextFunction, Request, Response } from 'express';
+import CrawlerService from '@/services/crawler.service';
+import FoodService from '@/services/foods.service';
+
+class IndexController {
+    public fontService = new FontService();
+    public sheetService = new SheetService();
+    public dataService = new DataService();
+    public listFontService = new ListFontService();
+    public messengerService = new MessengerService();
+    public configService = new ConfigService();
+    public chatService = new ChatService();
+    public googleService = new GoogleService();
+    public crawlerService = new CrawlerService();
+    public foodService = new FoodService();
+    public index = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+        } catch (error) {
+            next(error);
+        }
+        res.json(await this.messengerService.handleMessage('4992027270808835', 'Covid tại việt nam'));
+    };
+    public updateFood = async (req: Request, res: Response, next: NextFunction) => {
+        const foods = require('../datas/food.json');
+        const foodsSplit: Food[][] = [];
+        for (let i = 0; i < foods.length; i += 300) {
+            foodsSplit.push(foods.slice(i, i + 300));
+        }
+        await this.foodService.deleteAll();
+        for (let i = 0; i < foodsSplit.length; i++) {
+            await this.foodService.createMultiple(foodsSplit[i]);
+        }
+        res.json(await this.foodService.getOneRandom());
+    };
+    public updateData = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const dataExel = await this.sheetService.getDatas();
+            const fonts = dataExel.fonts;
+            const datas = dataExel.datas;
+            const fontsCreated = await this.fontService.createMultiple(fonts);
+            const datasCreated = await this.dataService.createMultiple(datas);
+            const listFont: ListFont[] = this.fontService.getList(fonts, 15);
+            const listFontCreated = await this.listFontService.createMultiple(listFont);
+            res.status(200).json({ fontsCreated });
+        } catch (error) {
+            next(error);
+        }
+    };
+}
+
+export default IndexController;
