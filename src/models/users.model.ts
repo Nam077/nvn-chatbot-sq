@@ -30,7 +30,7 @@ export default function (sequelize: Sequelize): typeof UserModel {
             },
         },
         {
-            tableName: 'users',
+            tableName: 'Users',
             sequelize,
         },
     );

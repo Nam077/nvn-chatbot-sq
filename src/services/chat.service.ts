@@ -7,7 +7,7 @@ import BanService from './bans.service';
 import ConfigService from './configs.service';
 import CrawlerService from './crawler.service';
 import DataService from './datas.service';
-import FontService from './fonts.service';
+import FontService, { PaginateData } from './fonts.service';
 import FoodService from './foods.service';
 import ListFontService from './list-font.service';
 
@@ -227,6 +227,12 @@ class ChatService {
     }
     public async getCovid(message: string): Promise<any> {
         return await this.crawlerService.crawlerCovid19(message);
+    }
+    public async getPaginateFont(page: number, limit: number): Promise<PaginateData> {
+        return await this.fontService.getPaginate(page, limit);
+    }
+    public async getEndPageFont(limit: number): Promise<number> {
+        return await this.fontService.getEndPage(limit);
     }
 }
 export default ChatService;

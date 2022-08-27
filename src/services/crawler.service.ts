@@ -363,7 +363,7 @@ class CrawlerService {
             });
             let msg = `Số ca mắc: ${arr[0]} \nSố ca tử vong: ${arr[1]}\nSố ca khỏi bệnh: ${arr[2]}`;
             //remove all ',' using regex
-            msg = msg.replace(/,/g, '');
+            msg = msg.replace(/,/g, '.');
             if (sendCheck === 0) {
                 return {
                     type: 'single location',

@@ -24,11 +24,7 @@ class IndexController {
     public crawlerService = new CrawlerService();
     public foodService = new FoodService();
     public index = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-        } catch (error) {
-            next(error);
-        }
-        res.json(await this.messengerService.handleMessage('4992027270808835', 'Covid tại việt nam'));
+        res.render('homepage.ejs');
     };
     public updateFood = async (req: Request, res: Response, next: NextFunction) => {
         const foods = require('../datas/food.json');
@@ -40,7 +36,7 @@ class IndexController {
         for (let i = 0; i < foodsSplit.length; i++) {
             await this.foodService.createMultiple(foodsSplit[i]);
         }
-        res.json(await this.foodService.getOneRandom());
+        res.redirect('/');
     };
     public updateData = async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -51,7 +47,7 @@ class IndexController {
             const datasCreated = await this.dataService.createMultiple(datas);
             const listFont: ListFont[] = this.fontService.getList(fonts, 15);
             const listFontCreated = await this.listFontService.createMultiple(listFont);
-            res.status(200).json({ fontsCreated });
+            res.redirect('/');
         } catch (error) {
             next(error);
         }

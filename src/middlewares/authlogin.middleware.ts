@@ -5,7 +5,7 @@ import DB from '@databases';
 import { HttpException } from '@exceptions/HttpException';
 import { DataStoredInToken, RequestWithUser } from '@interfaces/auth.interface';
 
-const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+const authLoginMiddleware = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
         const Authorization =
             req.cookies['Authorization'] ||
@@ -18,17 +18,18 @@ const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFun
             const findUser = await DB.Users.findByPk(userId);
 
             if (findUser) {
-                req.user = findUser;
-                next();
+                console.log(findUser);
+
+                res.redirect('/');
             } else {
-                res.redirect('/signin');
+                next();
             }
         } else {
-            res.redirect('/signin');
+            next();
         }
     } catch (error) {
-        res.redirect('/signin');
+        next();
     }
 };
 
-export default authMiddleware;
+export default authLoginMiddleware;

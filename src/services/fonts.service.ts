@@ -1,12 +1,26 @@
 import { Font } from '@/interfaces/fonts.interface';
 import { ListFont } from '@/interfaces/list-fonts.interface';
 import DB from '@databases';
-
+export interface PaginateData {
+    count: number;
+    allPage: number;
+    limit: number;
+    currentPage: number;
+    fonts: Font[];
+}
 class FontService {
     public async getAll(): Promise<Font[]> {
         try {
             const allFont: Font[] = await DB.Fonts.findAll();
             return allFont;
+        } catch (error) {
+            return;
+        }
+    }
+    public async getEndPage(limit: number): Promise<number> {
+        try {
+            const count: number = await DB.Fonts.count();
+            return Math.ceil(count / limit);
         } catch (error) {
             return;
         }
@@ -19,7 +33,6 @@ class FontService {
             return createdFonts;
         } catch (error) {
             return;
-            console.log(error);
         }
     }
     public getList(fonts: Font[], lenght: number): ListFont[] {
@@ -84,6 +97,30 @@ class FontService {
         try {
             const font: Font = await DB.Fonts.findOne({ where: { key: key } });
             return font;
+        } catch (error) {
+            return;
+        }
+    }
+    public async getPaginate(page: number, limit: number): Promise<PaginateData> {
+        try {
+            //get count of all fonts
+            const count: number = await DB.Fonts.count();
+            if (limit < 1 || limit > count) {
+                limit = 10;
+            }
+            if (page > Math.ceil(count / limit)) {
+                page = Math.ceil(count / limit);
+            }
+            if (+page < 1) {
+                page = 1;
+            }
+            const fonts: Font[] = await DB.Fonts.findAll({
+                offset: (page - 1) * limit,
+                limit: limit,
+            });
+            const allPage: number = Math.ceil(count / limit);
+            const currentPage: number = page;
+            return { count, allPage, limit, currentPage, fonts };
         } catch (error) {
             return;
         }
