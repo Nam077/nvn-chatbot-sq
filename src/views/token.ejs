@@ -25,12 +25,15 @@
     <title>Document</title>
 </head>
 <body>
-<div class="container">
+<div class="container mt-5">
     <form action="/post-update-token" method="post">
         <div class="form-group mb-4">
-            <label for="token">Token</label>
-            <input type="text" class="form-control" id="token" name="token" placeholder="Enter token">
+            <div class="mb-4">
+                <label for="token">Token Old</label>
+                <textarea rows="3" name="token" class="form-control"><%= token %></textarea>
+            </div>
         </div>
+
         <button type="submit" class="btn btn-primary">Submit</button>
     </form>
 </div>

@@ -73,6 +73,17 @@ class ConfigService {
         }
     }
 
+    async updatePageAccessToken(pageAccessToken: string): Promise<Config> {
+        try {
+            const config: Config = await this.getByKey('PageAccessToken');
+            if (!config) throw new Error('Config not found');
+            await DB.Configs.update({ value: pageAccessToken }, { where: { key: 'PageAccessToken' } });
+            return await this.getByKey('PageAccessToken');
+        } catch (error) {
+            return;
+        }
+    }
+
     async setUpDefaultConfigs(): Promise<any> {
         try {
             const configs: Config[] = [
