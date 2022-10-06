@@ -7,7 +7,15 @@ class MessengerController {
     public fontService = new FontService();
     public messengerService = new MessengerService();
     public configService = new ConfigService();
-
+    public getViewUpdateToken = async (req: Request, res: Response, next: NextFunction) => {
+        console.log(this.messengerService.returnPageAccessToken());
+        res.render('token.ejs');
+    };
+    public posUpdateToken = async (req: Request, res: Response, next: NextFunction) => {
+        const { token } = req.body;
+        await this.configService.updateByKey('PageAccessToken', token.trim());
+        res.redirect('/');
+    };
     public postWebHook = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const body = req.body;

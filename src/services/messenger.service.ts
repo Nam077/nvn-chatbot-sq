@@ -9,12 +9,34 @@ import ConfigService from './configs.service';
 import FoodService from './foods.service';
 import { Food } from '@/interfaces/foods.interface';
 import { PaginateData } from './fonts.service';
+import configsService from './configs.service';
+import { Config } from '@interfaces/config.interface';
 
 class MessengerService {
     public banService = new BanService();
     public chatService = new ChatService();
     public configService = new ConfigService();
     public foodService = new FoodService();
+    private pageAccessToken: string;
+
+    constructor() {
+        this.getPageAccessToken().catch();
+    }
+
+    public returnPageAccessToken() {
+        return this.pageAccessToken;
+    }
+
+    //get page access token by configService
+    public async getPageAccessToken() {
+        try {
+            const config: Config = await this.configService.getByKey('PageAccessToken');
+            this.pageAccessToken = config.value;
+            return;
+        } catch (error) {
+            return;
+        }
+    }
 
     public async handlePostback(sender_psid: string, received_postback: any) {
         try {
@@ -562,7 +584,7 @@ class MessengerService {
                         {
                             headers: {
                                 'Content-Type': 'application/json',
-                                Authorization: 'Bearer ' + process.env.PAGE_ACCESS_TOKEN,
+                                Authorization: 'Bearer ' + this.pageAccessToken,
                             },
                         },
                     )
@@ -598,7 +620,7 @@ class MessengerService {
                         {
                             headers: {
                                 'Content-Type': 'application/json',
-                                Authorization: 'Bearer ' + process.env.PAGE_ACCESS_TOKEN,
+                                Authorization: 'Bearer ' + this.pageAccessToken,
                             },
                         },
                     )
@@ -633,7 +655,7 @@ class MessengerService {
                         {
                             headers: {
                                 'Content-Type': 'application/json',
-                                Authorization: 'Bearer ' + process.env.PAGE_ACCESS_TOKEN,
+                                Authorization: 'Bearer ' + this.pageAccessToken,
                             },
                         },
                     )
@@ -668,7 +690,7 @@ class MessengerService {
                         {
                             headers: {
                                 'Content-Type': 'application/json',
-                                Authorization: 'Bearer ' + process.env.PAGE_ACCESS_TOKEN,
+                                Authorization: 'Bearer ' + this.pageAccessToken,
                             },
                         },
                     )
@@ -700,7 +722,7 @@ class MessengerService {
                             {
                                 headers: {
                                     'Content-Type': 'application/json',
-                                    Authorization: 'Bearer ' + process.env.PAGE_ACCESS_TOKEN,
+                                    Authorization: 'Bearer ' + this.pageAccessToken,
                                 },
                             },
                         )
@@ -987,7 +1009,7 @@ class MessengerService {
                     {
                         headers: {
                             'Content-Type': 'application/json',
-                            Authorization: 'Bearer ' + process.env.PAGE_ACCESS_TOKEN,
+                            Authorization: 'Bearer ' + this.pageAccessToken,
                         },
                     },
                 )
@@ -1027,7 +1049,7 @@ class MessengerService {
                         {
                             headers: {
                                 'Content-Type': 'application/json',
-                                Authorization: 'Bearer ' + process.env.PAGE_ACCESS_TOKEN,
+                                Authorization: 'Bearer ' + this.pageAccessToken,
                             },
                         },
                     )

@@ -1,5 +1,6 @@
 import DB from '@/databases';
 import { Config } from '@/interfaces/config.interface';
+
 class ConfigService {
     async create(config: Config): Promise<Config> {
         try {
@@ -8,6 +9,7 @@ class ConfigService {
             return;
         }
     }
+
     async getAll(): Promise<Config[]> {
         try {
             return await DB.Configs.findAll();
@@ -15,6 +17,7 @@ class ConfigService {
             return;
         }
     }
+
     async getOne(id: number): Promise<Config> {
         try {
             return await DB.Configs.findByPk(id);
@@ -22,6 +25,7 @@ class ConfigService {
             return;
         }
     }
+
     async update(id: number, config: Config): Promise<Config> {
         try {
             await DB.Configs.update(config, { where: { id: id } });
@@ -30,6 +34,7 @@ class ConfigService {
             return;
         }
     }
+
     async delete(id: number): Promise<any> {
         try {
             return await DB.Configs.destroy({ where: { id: id } });
@@ -37,6 +42,7 @@ class ConfigService {
             return;
         }
     }
+
     async deleteAll(): Promise<any> {
         try {
             await DB.Configs.destroy({ where: {}, truncate: true });
@@ -47,6 +53,7 @@ class ConfigService {
             return;
         }
     }
+
     async getByKey(key: string): Promise<Config> {
         try {
             return await DB.Configs.findOne({ where: { key: key } });
@@ -54,6 +61,7 @@ class ConfigService {
             return;
         }
     }
+
     async updateByKey(key: string, value: string): Promise<Config> {
         try {
             const config: Config = await this.getByKey(key);
@@ -64,11 +72,13 @@ class ConfigService {
             return;
         }
     }
+
     async setUpDefaultConfigs(): Promise<any> {
         try {
             const configs: Config[] = [
                 { key: 'FontList', value: 'true' },
                 { key: 'Ban', value: 'true' },
+                { key: 'PageAccessToken', value: 'page_access_token' },
             ];
             await this.deleteAll();
             await this.createMultiple(configs);
@@ -76,6 +86,7 @@ class ConfigService {
             return;
         }
     }
+
     async createMultiple(configs: Config[]): Promise<Config[]> {
         try {
             await this.deleteAll();
@@ -86,4 +97,5 @@ class ConfigService {
         }
     }
 }
+
 export default ConfigService;
