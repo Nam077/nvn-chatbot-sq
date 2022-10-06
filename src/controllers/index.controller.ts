@@ -11,6 +11,7 @@ import SheetService from '@/services/sheet.service';
 import { NextFunction, Request, Response } from 'express';
 import CrawlerService from '@/services/crawler.service';
 import FoodService from '@/services/foods.service';
+import { pthh } from '@services/balance-the-chemical-equation.service';
 
 class IndexController {
     public fontService = new FontService();
@@ -52,6 +53,11 @@ class IndexController {
             next(error);
         }
     };
+    public test = async (req: Request, res: Response, next: NextFunction) => {
+        return res.json(this.chatService.getPTHH('@pthh C2H4	+	H2O	+	KMnO4	⟶	KOH	+	MnO2	+	C2H4(OH)2'));
+    };
 }
+
+//
 
 export default IndexController;

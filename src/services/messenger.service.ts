@@ -15,6 +15,7 @@ class MessengerService {
     public chatService = new ChatService();
     public configService = new ConfigService();
     public foodService = new FoodService();
+
     public async handlePostback(sender_psid: string, received_postback: any) {
         try {
             // Get the payload for the postback
@@ -60,10 +61,13 @@ class MessengerService {
             return;
         }
     }
+
     public async handleMessage(sender_psid: string, received_message: any): Promise<void> {
         try {
+            let received_message_no_format;
             let userProfile: any = await this.getUserProfile(sender_psid);
             if (received_message) {
+                received_message_no_format = received_message;
                 received_message = received_message.toLowerCase();
                 if (received_message.includes('bắt đầu' || 'khởi động lại')) {
                     await this.sendStart(sender_psid);
@@ -86,20 +90,24 @@ class MessengerService {
                     console.log('lỗi admin');
                     return;
                 }
-                const dataCheck: Data[] = await this.chatService.checkData(received_message);
-                if (dataCheck.length > 0) {
-                    await this.sendTextMessage(sender_psid, dataCheck[0].response);
-                    if (dataCheck[0].image !== '') {
-                        await this.sendImageMessage(sender_psid, dataCheck[0].image);
-                    }
-                    console.log('lỗi data');
+                if (received_message.includes('@pthh')) {
+                    let pthh_result = this.chatService.getPTHH(received_message_no_format);
+                    console.log(pthh_result);
+                    await this.sendTextMessage(sender_psid, pthh_result);
                     return;
                 }
+
                 if (received_message.includes('@ytb')) {
                     const data = await this.chatService.getYtb(received_message);
                     await this.callSendAPI(sender_psid, await this.getTemplateYtb(data));
                     return;
                 }
+                if (received_message.includes('@qr')) {
+                    const data = this.chatService.getQrcode(received_message);
+                    await this.callSendAPI(sender_psid, await this.sendImageMessage(sender_psid, data));
+                    return;
+                }
+
                 if (received_message.includes('ăn gì' || 'an gi')) {
                     const food = await this.foodService.getOneRandom();
                     console.log(food);
@@ -115,6 +123,15 @@ class MessengerService {
                     let covid = await this.chatService.getCovid(received_message);
                     await this.handelCrawlerCovid(sender_psid, covid);
                     return;
+                }
+                const dataCheck: Data[] = await this.chatService.checkData(received_message);
+                if (dataCheck.length > 0) {
+                    await this.sendTextMessage(sender_psid, dataCheck[0].response);
+                    if (dataCheck[0].image !== '') {
+                        await this.sendImageMessage(sender_psid, dataCheck[0].image);
+                    }
+                    console.log('lỗi data');
+                    return;
                 } else {
                     await this.handelCrawler(sender_psid, received_message);
                     return;
@@ -124,6 +141,7 @@ class MessengerService {
             return;
         }
     }
+
     public async handelCrawlerCovid(sender_psid: string, dataCovid: any) {
         try {
             if (dataCovid) {
@@ -142,6 +160,7 @@ class MessengerService {
             return;
         }
     }
+
     public async sendListFontTemplate(sender_psid: string, payload: string) {
         try {
             let page: number = Number(payload.split('_')[3]);
@@ -163,6 +182,7 @@ class MessengerService {
             return;
         }
     }
+
     public async sendListFontEnd(sender_psid: string) {
         try {
             const endPage = await this.chatService.getEndPageFont(10);
@@ -175,6 +195,7 @@ class MessengerService {
             return;
         }
     }
+
     public async sendButtonListFontImage(page: number) {
         return {
             attachment: {
@@ -198,6 +219,7 @@ class MessengerService {
             },
         };
     }
+
     public getTemplateFontMulti(fonts: Font[]) {
         let elements: any[] = [];
         fonts.forEach((font: Font) => {
@@ -221,6 +243,7 @@ class MessengerService {
         });
         return elements;
     }
+
     public async getTemplateYtb(data: any) {
         try {
             return {
@@ -249,6 +272,7 @@ class MessengerService {
             return;
         }
     }
+
     public async sendFood(sender_psid: string, food: Food) {
         try {
             await this.sendTextMessage(sender_psid, food.name);
@@ -260,6 +284,7 @@ class MessengerService {
             return;
         }
     }
+
     public getStartedQuickReplies(): any {
         try {
             return [
@@ -293,6 +318,7 @@ class MessengerService {
             return;
         }
     }
+
     //handel quick reply
     public async handelQuickReply(sender_psid: string, received_message: any) {
         try {
@@ -321,6 +347,7 @@ class MessengerService {
             return;
         }
     }
+
     public async sendTutorial(sender_psid: string) {
         try {
             await this.sendTextMessage(
@@ -335,6 +362,7 @@ class MessengerService {
             return;
         }
     }
+
     public async sendVideoTutorial(sender_psid: string) {
         try {
             await this.callSendAPI(sender_psid, {
@@ -355,6 +383,7 @@ class MessengerService {
             return;
         }
     }
+
     public async sendQuickReplies(sender_psid: string, text: string, quickReplies: any) {
         try {
             // Create the payload for a basic text message
@@ -367,6 +396,7 @@ class MessengerService {
             return;
         }
     }
+
     public async sendTextMessage(sender_psid: string, text: string) {
         try {
             // Create the payload for a basic text message
@@ -378,6 +408,7 @@ class MessengerService {
             return;
         }
     }
+
     public async handelCrawler(sender_psid: string, received_message: any) {
         const data = await this.chatService.getCrawler(received_message);
         if (data.length > 0) {
@@ -397,6 +428,7 @@ class MessengerService {
             }
         }
     }
+
     public async sendImageMessage(sender_psid: string, image_url: string) {
         // Create the payload for a basic text message
         try {
@@ -549,6 +581,7 @@ class MessengerService {
             return;
         }
     }
+
     public async sendTypingOn(sender_psid: string) {
         //using axios to send message to facebook
         try {
@@ -583,6 +616,7 @@ class MessengerService {
             return;
         }
     }
+
     public async sendTypingOff(sender_psid: string) {
         //using axios to send message to facebook
         try {
@@ -617,6 +651,7 @@ class MessengerService {
             return;
         }
     }
+
     public async sendRead(sender_psid: string) {
         //using axios to send message to facebook
         try {
@@ -651,6 +686,7 @@ class MessengerService {
             return;
         }
     }
+
     public async getUserProfile(sender_psid: string): Promise<any> {
         //using axios to send message to facebook get name, profile_pic, first_name, last_name from ?fields=first_name,last_name,profile_pic
         try {
@@ -749,6 +785,7 @@ class MessengerService {
             return;
         }
     }
+
     public async sendListFont(sender_psid: string): Promise<void> {
         try {
             const listFont: ListFont[] = await this.chatService.getListFont();
@@ -764,6 +801,7 @@ class MessengerService {
             return;
         }
     }
+
     public async sendFont(sender_psid: string, fontCheck: Font[], userProfile: any) {
         try {
             const configFontList = await this.configService.getByKey('FontList');
@@ -784,6 +822,7 @@ class MessengerService {
             return;
         }
     }
+
     public async sendSingleFont(sender_psid: string, fontSingle: Font, userProfile: any) {
         try {
             await this.sendImageMessage(sender_psid, fontSingle.image);
@@ -833,11 +872,13 @@ class MessengerService {
             'Hiện tại bên mình đang bạn với giá 1 font là 1000đ\nNếu bạn muốn mua thì liên hệ với fb.com/nam077.me',
         );
     }
+
     public async sendPriceService(sender_psid: string) {
         await this.sendTextMessage(sender_psid, 'Hiện tại bên mình đang nhận việt hoá font với giá là 50 000đ / font');
         await this.sendTextMessage(sender_psid, 'Nếu bạn muốn liên hệ để việt hoá thì nhắn tin qua\nfb.com/nam077me');
         return;
     }
+
     public async sendStart(sender_psid: string) {
         try {
             const userProfile: any = await this.getUserProfile(sender_psid);
@@ -853,6 +894,7 @@ class MessengerService {
             return;
         }
     }
+
     public async sendGreeting(sender_psid: string, name: string) {
         try {
             let timeNow = new Date();
@@ -959,6 +1001,7 @@ class MessengerService {
             return;
         }
     }
+
     public async setUpProfile() {
         //using axios to send message to facebook
         try {
@@ -1017,7 +1060,7 @@ class MessengerService {
                     return true;
                 } else {
                     const checkBan: string = (await this.configService.getByKey('Ban')).value;
-                    if (+hour < 5 || (+hour > 23 && checkBan.includes('true'))) {
+                    if ((+hour < 5 || +hour > 23) && checkBan.includes('true')) {
                         const userProfile = await this.getUserProfile(sender_psid);
                         const checkBan = await this.banService.getOneByPsid(sender_psid);
                         if (checkBan) {

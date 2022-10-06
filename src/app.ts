@@ -109,6 +109,7 @@ class App {
     private initializeErrorHandling() {
         this.app.use(errorMiddleware);
     }
+
     private intitViewEngine() {
         this.app.set('view engine', 'ejs');
         // this.app.set('views', 'views/');

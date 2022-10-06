@@ -15,6 +15,7 @@ class IndexRoute implements Routes {
     }
 
     private initializeRoutes() {
+
         this.router.get(`${this.path}`, authMiddleware, this.indexController.index);
         this.router.get(`${this.path}update-data`, authMiddleware, this.indexController.updateData);
         this.router.get(`${this.path}webhook`, this.messengerController.getWebhook);
@@ -25,6 +26,7 @@ class IndexRoute implements Routes {
         this.router.get(`${this.path}update-food`, authMiddleware, this.indexController.updateFood);
         this.router.get(`${this.path}spam`, authMiddleware, this.messengerController.spamMessage);
         this.router.post(`${this.path}send-message`, authMiddleware, this.messengerController.sendSpamMessage);
+        this.router.get(`${this.path}test`, this.indexController.test);
     }
 }
 

@@ -10,6 +10,7 @@ import DataService from './datas.service';
 import FontService, { PaginateData } from './fonts.service';
 import FoodService from './foods.service';
 import ListFontService from './list-font.service';
+import { pthh } from '@services/balance-the-chemical-equation.service';
 
 class ChatService {
     public fontService = new FontService();
@@ -19,6 +20,7 @@ class ChatService {
     public listFontService = new ListFontService();
     public foodService = new FoodService();
     public crawlerService = new CrawlerService();
+
     public async checkFont(message: string): Promise<Font[]> {
         const fonts: Font[] = await this.fontService.getAll();
         const icludesFont: Font[] = new Array();
@@ -29,6 +31,7 @@ class ChatService {
         });
         return icludesFont;
     }
+
     public async checkData(message: string): Promise<Data[]> {
         const datas: Data[] = await this.dataService.getAll();
         let icludesData: Data[] = new Array();
@@ -41,6 +44,7 @@ class ChatService {
         });
         return icludesData;
     }
+
     public getDataMessage(fonts: Font[]): string[] {
         const data: string[] = new Array();
         const fontCheckArray: Font[][] = [];
@@ -60,12 +64,15 @@ class ChatService {
         }
         return data;
     }
+
     public async getListFont(): Promise<ListFont[]> {
         return await this.listFontService.getAll();
     }
+
     public async getBanList(): Promise<Ban[]> {
         return await this.banService.getAll();
     }
+
     public async adminFuntion(message: String): Promise<any> {
         let result: any = new Object();
 
@@ -198,9 +205,11 @@ class ChatService {
             }
         }
     }
+
     public async getRecommendFood(): Promise<Food> {
         return await this.foodService.getOneRandom();
     }
+
     public async getCrawler(key: string): Promise<any> {
         const crawler: any = await this.crawlerService.getCrwaler(key);
         const arrayResult: any = new Array();
@@ -214,6 +223,7 @@ class ChatService {
         }
         return array;
     }
+
     public async getYtb(key: string): Promise<any> {
         const ytb = await this.crawlerService.getYoutube(key);
         if (ytb) {
@@ -222,17 +232,39 @@ class ChatService {
             return null;
         }
     }
+
     public async getXSMB(): Promise<any> {
         return await this.crawlerService.crawlerXSMB();
     }
+
     public async getCovid(message: string): Promise<any> {
         return await this.crawlerService.crawlerCovid19(message);
     }
+
     public async getPaginateFont(page: number, limit: number): Promise<PaginateData> {
         return await this.fontService.getPaginate(page, limit);
     }
+
     public async getEndPageFont(limit: number): Promise<number> {
         return await this.fontService.getEndPage(limit);
     }
+
+    public getPTHH(received_message: string) {
+        const pthh_str = received_message.replace('@pthh ', '');
+
+        const pthh_result = pthh(pthh_str);
+        if (pthh) {
+            return pthh_result.text;
+        } else {
+            return null;
+        }
+    }
+
+    public getQrcode(received_message: string) {
+        const qrcode_str = received_message.replace('@qr ', '');
+        let link = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + qrcode_str;
+        return link;
+    }
 }
+
 export default ChatService;
