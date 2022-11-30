@@ -1,7 +1,10 @@
 import axios from 'axios';
 import cheerio from 'cheerio';
 import * as yt from 'youtube-search-without-api-key';
+import * as fs from 'fs';
+
 const translate = require('translate-google');
+
 class CrawlerService {
     public getCrwaler = async (message: string): Promise<String[]> => {
         let dataReturn = [];
@@ -258,48 +261,54 @@ class CrawlerService {
     };
     public crawlerXSMB = async (): Promise<any> => {
         try {
-            const url = `https://xsmn.me/xsmb-sxmb-kqxsmb-xstd-xshn-ket-qua-xo-so-mien-bac.html`;
-            const agent = {
-                headers: {
-                    'User-Agent':
-                        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36',
-                },
-            };
-            const { data } = await axios.get(url, agent);
+            const url = `https://xskt.com.vn/rss-feed/mien-bac-xsmb.rss`;
+
+            //set cookie to axios
+            const { data } = await axios.get(url);
             const $ = cheerio.load(data);
-            let xsmb = $(data).find('table.extendable.kqmb.colgiai').first();
-            let msg = '';
-            let gdb = $(xsmb).find('span.v-gdb').first().text();
-            msg += 'Giải đặc biệt: ' + gdb + '\n';
-            let gn = $(xsmb).find('span.v-g1').first().text();
-            msg += 'Giải nhất: ' + gn + '\n';
-            msg += 'Giải 2: ';
-            for (let i = 0; i < 2; i++) {
-                msg += $(xsmb).find(`span.v-g2-${i}`).text().trim() + ' ';
-            }
-            msg += '\nGiải 3: ';
-            for (let i = 0; i < 6; i++) {
-                msg += $(xsmb).find(`span.v-g3-${i}`).text().trim() + ' ';
-            }
-            msg += '\nGiải 4: ';
-            for (let i = 0; i < 4; i++) {
-                msg += $(xsmb).find(`span.v-g4-${i}`).text().trim() + ' ';
-            }
-            msg += '\nGiải 5: ';
-            for (let i = 0; i < 6; i++) {
-                msg += $(xsmb).find(`span.v-g5-${i}`).text().trim() + ' ';
-            }
-            msg += '\nGiải 6: ';
-            for (let i = 0; i < 3; i++) {
-                msg += $(xsmb).find(`span.v-g6-${i}`).text().trim() + ' ';
-            }
-            msg += '\nGiải 7: ';
-            for (let i = 0; i < 4; i++) {
-                msg += $(xsmb).find(`span.v-g7-${i}`).text().trim() + ' ';
-            }
-            return msg;
+            // data is xml covert to json
+            // resulst is array have item
+            let result = [];
+            $('item').each(function (i, e) {
+                let title = $(this).find('title').text();
+                let description = $(this).find('description').text();
+                result.push({
+                    title: title,
+                    description: description,
+                });
+            });
+            // {
+            //   "title": "KẾT QUẢ XỔ SỐ MIỀN BẮC NGÀY 30/11 (Thứ Tư)",
+            //   "description": "\nĐB: 98112\n1: 09152\n2: 01989 - 05593\n3: 25161 - 95366 - 48674 - 94494 - 04644 - 96641\n4: 7013 - 7672 - 5579 - 4369\n5: 8490 - 1279 - 3981 - 7199 - 9982 - 5959\n6: 036 - 860 - 858\n7: 51 - 35 - 67 - 57"
+            // },
+
+            let dataResult = result[0].description.replace('\n', '').split('\n');
+            // [
+            //   "ĐB: 98112",
+            //   "1: 09152",
+            //   "2: 01989 - 05593",
+            //   "3: 25161 - 95366 - 48674 - 94494 - 04644 - 96641",
+            //   "4: 7013 - 7672 - 5579 - 4369",
+            //   "5: 8490 - 1279 - 3981 - 7199 - 9982 - 5959",
+            //   "6: 036 - 860 - 858",
+            //   "7: 51 - 35 - 67 - 57"
+            // ]
+            let giaiDB = 'Giải ĐB: ' + dataResult[0].replace('ĐB: ', '');
+            let giaiNhat = 'Giải Nhất: ' + dataResult[1].replace('1: ', '');
+            let giaiNhi = 'Giải Nhì: ' + dataResult[2].replace('2: ', '');
+            let giaiBa = 'Giải Ba: ' + dataResult[3].replace('3: ', '');
+            let giaiTu = 'Giải Tư: ' + dataResult[4].replace('4: ', '');
+            let giaiNam = 'Giải Năm: ' + dataResult[5].replace('5: ', '');
+            let giaiSau = 'Giải Sáu: ' + dataResult[6].replace('6: ', '');
+            let giaiBay = 'Giải Bảy: ' + dataResult[7].replace('7: ', '');
+            return `${giaiDB}\n${giaiNhat}\n${giaiNhi}\n${giaiBa}\n${giaiTu}\n${giaiNam}\n${giaiSau}\n${giaiBay}`;
         } catch (error) {
-            return;
+            //save log to file
+            fs.appendFile('log.txt', error + '\n', function (err) {
+                if (err) throw err;
+                console.log('Saved!');
+            });
+            return 'Lỗi';
         }
     };
     public crawlerCovid19 = async (message: string): Promise<any> => {
@@ -408,4 +417,5 @@ class CrawlerService {
         }
     };
 }
+
 export default CrawlerService;
