@@ -263,7 +263,11 @@ class ChatService {
     public getQrcode(received_message: string) {
         const qrcode_str = received_message.replace('@qr ', '');
         let link = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + qrcode_str;
-        return link;
+        return 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + qrcode_str;
+    }
+
+    public async getApiTalk(message: string): Promise<string> {
+        return await this.crawlerService.apiTalk(message);
     }
 }
 

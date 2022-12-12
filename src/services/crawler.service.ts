@@ -293,7 +293,7 @@ class CrawlerService {
             //   "6: 036 - 860 - 858",
             //   "7: 51 - 35 - 67 - 57"
             // ]
-            let giaiDB = 'Giải ĐB: ' + dataResult[0].replace('ĐB: ', '');
+            let giaiDB = 'Giải Đặc Biệt: ' + dataResult[0].replace('ĐB: ', '');
             let giaiNhat = 'Giải Nhất: ' + dataResult[1].replace('1: ', '');
             let giaiNhi = 'Giải Nhì: ' + dataResult[2].replace('2: ', '');
             let giaiBa = 'Giải Ba: ' + dataResult[3].replace('3: ', '');
@@ -301,7 +301,7 @@ class CrawlerService {
             let giaiNam = 'Giải Năm: ' + dataResult[5].replace('5: ', '');
             let giaiSau = 'Giải Sáu: ' + dataResult[6].replace('6: ', '');
             let giaiBay = 'Giải Bảy: ' + dataResult[7].replace('7: ', '');
-            return `${giaiDB}\n${giaiNhat}\n${giaiNhi}\n${giaiBa}\n${giaiTu}\n${giaiNam}\n${giaiSau}\n${giaiBay}`;
+            return `${result[0].title}\n${giaiDB}\n${giaiNhat}\n${giaiNhi}\n${giaiBa}\n${giaiTu}\n${giaiNam}\n${giaiSau}\n${giaiBay}`;
         } catch (error) {
             //save log to file
             fs.appendFile('log.txt', error + '\n', function (err) {
@@ -416,6 +416,17 @@ class CrawlerService {
             return;
         }
     };
+
+    public async apiTalk(message: string): Promise<string> {
+        try {
+            const encodedString = encodeURI(message);
+            const url = `https://simsimi.info/api/?text=${encodedString}&&lc=vn`;
+            const { data } = await axios.get(url);
+            return data.message;
+        } catch (error) {
+            return 'Lỗi';
+        }
+    }
 }
 
 export default CrawlerService;

@@ -9,7 +9,6 @@ import ConfigService from './configs.service';
 import FoodService from './foods.service';
 import { Food } from '@/interfaces/foods.interface';
 import { PaginateData } from './fonts.service';
-import configsService from './configs.service';
 import { Config } from '@interfaces/config.interface';
 
 class MessengerService {
@@ -18,9 +17,22 @@ class MessengerService {
     public configService = new ConfigService();
     public foodService = new FoodService();
     private pageAccessToken: string;
+    private listPsidUsingBot2: string[] = [];
 
     constructor() {
         this.getPageAccessToken().catch();
+        this.resetListPsidUsingBot2();
+    }
+
+    public resetListPsidUsingBot2() {
+        /// get thời gian hiện tại
+        const now = new Date();
+        now.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+        // cứ đến 00:00:00 thì reset lại listPsidUsingBot2 dùng settimeout
+        setTimeout(() => {
+            this.listPsidUsingBot2 = [];
+            this.resetListPsidUsingBot2();
+        }, 86400000 - (now.getTime() % 86400000));
     }
 
     public returnPageAccessToken() {
@@ -106,6 +118,29 @@ class MessengerService {
 
                     return;
                 }
+                if (received_message.includes('@botv2')) {
+                    // if include @botv2 on
+                    if (received_message.includes('on')) {
+                        if (this.listPsidUsingBot2.includes(sender_psid)) {
+                            await this.sendTextMessage(sender_psid, 'Bạn đã sử dụng botv2 rồi');
+                            return;
+                        }
+                        this.listPsidUsingBot2.push(sender_psid);
+                        await this.sendTextMessage(sender_psid, 'Bạn đã bật botv2');
+                        return;
+                    }
+
+                    // if include @botv2 off
+                    if (received_message.includes('off')) {
+                        if (!this.listPsidUsingBot2.includes(sender_psid)) {
+                            await this.sendTextMessage(sender_psid, 'Bạn chưa sử dụng botv2');
+                            return;
+                        }
+                        this.listPsidUsingBot2.splice(this.listPsidUsingBot2.indexOf(sender_psid), 1);
+                        await this.sendTextMessage(sender_psid, 'Bạn đã tắt botv2');
+                        return;
+                    }
+                }
                 if (received_message.includes('@nvn') && sender_psid === process.env.ADMIN_PSID) {
                     const data = await this.chatService.adminFuntion(received_message);
                     await this.sendMessageAdmin(sender_psid, data);
@@ -153,6 +188,11 @@ class MessengerService {
                         await this.sendImageMessage(sender_psid, dataCheck[0].image);
                     }
                     console.log('lỗi data');
+                    return;
+                }
+                if (this.listPsidUsingBot2.includes(sender_psid)) {
+                    const message = await this.chatService.getApiTalk(received_message);
+                    await this.sendTextMessage(sender_psid, message);
                     return;
                 } else {
                     await this.handelCrawler(sender_psid, received_message);
